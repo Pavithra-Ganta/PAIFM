@@ -5,7 +5,14 @@ from google.cloud import firestore
 router = APIRouter()
 
 # Initialize Firestore client
-db = firestore.Client.from_service_account_json("serviceAccount.json")
+import os, json
+from google.cloud import firestore
+from google.oauth2 import service_account
+
+firebase_creds = json.loads(os.environ["FIREBASE_CREDENTIALS"])
+credentials = service_account.Credentials.from_service_account_info(firebase_creds)
+db = firestore.Client(credentials=credentials, project=firebase_creds["project_id"])
+
 # will be using after signup
 @router.post("/create-user")
 async def create_user(authorization: str = Header(None)):

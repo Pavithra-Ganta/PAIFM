@@ -10,3 +10,4 @@ sentence-transformers
 torch
 openai
 dateparser
+google-auth
