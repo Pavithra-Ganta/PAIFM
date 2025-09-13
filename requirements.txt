@@ -11,3 +11,4 @@ torch
 openai
 dateparser
 google-auth
+python-dotenv
