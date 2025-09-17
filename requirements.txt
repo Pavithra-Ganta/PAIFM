@@ -6,8 +6,6 @@ google-cloud-firestore
 requests
 python-multipart
 firebase-admin
-sentence-transformers
-torch
 openai
 dateparser
 google-auth

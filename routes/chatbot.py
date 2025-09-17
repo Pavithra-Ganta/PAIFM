@@ -7,8 +7,8 @@ from utils.prompt_builder import build_prompt
 from utils.llm import ask_mistral
 from google.cloud import firestore
 from pydantic import BaseModel
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+
 
 router = APIRouter()
 import os, json
@@ -44,14 +44,27 @@ async def chatbot(request: ChatbotRequest, authorization: str = Header(None)):
     transactions = []
     if intent in ["expense_query", "budget_query", "expense_analysis", "savings_advice"]:
         days = extract_time_window(user_prompt) or 30
-        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_ts = datetime.now(timezone.utc) - timedelta(days=days)
         txn_ref = user_ref.collection("transactions")
-        docs = txn_ref.where("date", ">=", cutoff_date).stream()
+        docs = txn_ref.where("timestamp", ">=", cutoff_ts).stream()
+        transactions = []
         for doc in docs:
             data = doc.to_dict()
             transactions.append({
                 "category": data.get("category"),
-                "amount": data.get("amount", 0)
+                "amount": float(data.get("amount", 0) or 0),
+            })
+        if not transactions:
+            docs = (
+                txn_ref.order_by("timestamp", direction=firestore.Query.DESCENDING)
+                  .limit(100)
+                  .stream()
+            )
+        for doc in docs:
+            data = doc.to_dict()
+            transactions.append({
+                "category": data.get("category"),
+                "amount": float(data.get("amount", 0) or 0),
             })
 
     # Build context dict
@@ -65,6 +78,7 @@ async def chatbot(request: ChatbotRequest, authorization: str = Header(None)):
 
     # Build prompt and call LLM
     final_prompt = build_prompt(intent, user_prompt, context, transactions)
+    print(final_prompt)
     bot_response = ask_mistral(final_prompt)
 
     # Update context memory
