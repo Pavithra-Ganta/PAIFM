@@ -24,6 +24,13 @@ context_engine = ContextEngine(db)
 
 class ChatbotRequest(BaseModel):
     prompt: str
+
+@router.get("/warmup")
+async def warmup():
+    """Trigger intent embeddings precomputation."""
+    intent_engine.warmup()
+    return {"status": "intent embeddings loaded"}
+
 @router.post("/chatbot")
 async def chatbot(request: ChatbotRequest, authorization: str = Header(None)):
     user_prompt = request.prompt
