@@ -10,5 +10,9 @@ openai
 dateparser
 google-auth
 python-dotenv
+regex==2024.5.15
 numpy==2.1.0
+pip>=25.3
+setuptools>=70.0.0
+wheel
 google-generativeai
