@@ -1,19 +1,26 @@
 import os
 from dotenv import load_dotenv
-from openai import OpenAI
+import google.generativeai as genai
 
-load_dotenv()  # Load environment variables from .env
+# Load environment variables
+load_dotenv()
 
-api_key = os.getenv("TOGETHER_API_KEY")
+# Read Gemini API key
+api_key = os.getenv("GEMINI_API_KEY")
 
-client = OpenAI(api_key=api_key, base_url="https://api.together.xyz/v1")
+# Configure Gemini
+genai.configure(api_key=api_key)
 
+# Function to call Gemini
 def ask_mistral(prompt):
-    response = client.chat.completions.create(
-        model="mistralai/Mistral-7B-Instruct-v0.1",
-        messages=[
+    model = genai.GenerativeModel("gemini-1.5-pro")   # You can use gemini-1.5-flash for cheaper & faster
+
+    response = model.generate_content(
+        [
             {"role": "system", "content": "You are a helpful financial assistant."},
             {"role": "user", "content": prompt}
         ]
     )
-    return response.choices[0].message.content
+
+    return response.text
+
