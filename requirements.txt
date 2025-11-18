@@ -11,3 +11,4 @@ dateparser
 google-auth
 python-dotenv
 numpy
+google-generativeai
