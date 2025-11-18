@@ -10,5 +10,5 @@ openai
 dateparser
 google-auth
 python-dotenv
-numpy
+numpy==2.1.0
 google-generativeai
